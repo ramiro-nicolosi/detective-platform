@@ -1,34 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 export function useAuth() {
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { data: session, status } = useSession();
 
-  useEffect(() => {
-    const user = localStorage.getItem('detective_user');
-    if (user) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  const login = (username: string) => {
-    setCurrentUser(username);
-    setIsAuthenticated(true);
-    localStorage.setItem('detective_user', username);
+  const login = () => {
+    signIn('google');
   };
 
   const logout = () => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('detective_user');
+    signOut();
   };
 
   return {
-    currentUser,
-    isAuthenticated,
+    currentUser: session?.user?.name || session?.user?.email || null,
+    user: session?.user || null,
+    isAuthenticated: status === 'authenticated',
+    isLoading: status === 'loading',
     login,
     logout
   };
