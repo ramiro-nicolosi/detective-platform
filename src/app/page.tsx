@@ -20,7 +20,7 @@ import Modal from '@/components/Modal';
 import WindowManager from '@/components/WindowManager';
 
 export default function Home() {
-  const { currentUser, isAuthenticated, login, logout } = useAuth();
+  const { currentUser, isAuthenticated, isLoading, login, logout } = useAuth();
   const { addSolvedCase, getSolvedCases } = useUserProgress();
   const { currentCase, setCurrentCase, revealClue, checkSolution } = useGameLogic(null);
   
@@ -34,8 +34,8 @@ export default function Home() {
     motive: string;
   } | null>(null);
 
-  const handleLogin = useCallback((username: string) => {
-    login(username);
+  const handleLogin = useCallback(() => {
+    login();
   }, [login]);
 
   const handleStartCase = useCallback((caseId: number) => {
@@ -217,8 +217,15 @@ export default function Home() {
         <p>Resuelve misterios y casos de investigación</p>
       </div>
 
-      {!isAuthenticated ? (
+      {!isAuthenticated && !isLoading ? (
         <AuthForm onLogin={handleLogin} />
+      ) : isLoading ? (
+        <div className="loading-screen">
+          <div className="loading-content">
+            <div className="loading-spinner"></div>
+            <p>Verificando credenciales...</p>
+          </div>
+        </div>
       ) : !currentCase ? (
         <div className="main-content">
           <div className="user-info">
@@ -454,6 +461,33 @@ export default function Home() {
 
         .btn-secondary {
           background: #6c757d;
+        }
+
+        .loading-screen {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 400px;
+        }
+
+        .loading-content {
+          text-align: center;
+          color: white;
+        }
+
+        .loading-spinner {
+          width: 50px;
+          height: 50px;
+          border: 4px solid rgba(255, 255, 255, 0.3);
+          border-top: 4px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
